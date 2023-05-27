@@ -1,0 +1,185 @@
+openapi: 3.0.2
+info:
+  title: FastAPI
+  version: 0.1.0
+paths:
+  /orders:
+    get:
+      summary: Get Orders
+      operationId: get_orders_orders_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Get Orders Orders Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderOutput'
+    post:
+      summary: Create Order
+      operationId: create_order_orders_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /orders/{order_id}:
+    get:
+      summary: Get Order
+      operationId: get_order_orders__order_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Order Id
+            type: string
+          name: order_id
+          in: path
+      responses:
+        '200':
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOutput'
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Order
+      operationId: delete_order_orders__order_id__delete
+      parameters:
+        - description: The ID of the order to delete
+          required: true
+          schema:
+            title: Order Id
+            type: string
+            description: The ID of the order to delete
+          name: order_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+        '204':
+          description: Order canceled
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    Error:
+      title: Error
+      required:
+        - code
+        - message
+      type: object
+      properties:
+        code:
+          title: Code
+          type: integer
+        message:
+          title: Message
+          type: string
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    OrderInput:
+      title: OrderInput
+      required:
+        - stocks
+        - quantity
+      type: object
+      properties:
+        stocks:
+          title: Stocks
+          type: string
+        quantity:
+          title: Quantity
+          type: number
+    OrderOutput:
+      title: OrderOutput
+      required:
+        - stocks
+        - quantity
+        - id
+        - status
+      type: object
+      properties:
+        stocks:
+          title: Stocks
+          type: string
+        quantity:
+          title: Quantity
+          type: number
+        id:
+          title: Id
+          type: string
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+    OrderStatus:
+      title: OrderStatus
+      enum:
+        - pending
+        - executed
+        - canceled
+      description: An enumeration.
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
